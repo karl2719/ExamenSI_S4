@@ -33,7 +33,7 @@ CREATE TABLE prefixes (
 -- ---------------------------------------------------------
 CREATE TABLE types_operation (
     id_type         INTEGER PRIMARY KEY AUTOINCREMENT,
-    code            TEXT    NOT NULL UNIQUE,   -- DEPOT, RETRAIT, TRANSFERT
+    code            TEXT    NOT NULL UNIQUE,
     libelle         TEXT    NOT NULL,
     created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
 );

@@ -17,15 +17,15 @@
 
 # FRONT-OFFICE :
 ## Models
-1. [ ] `ClientModel` : recherche par telephone, creation automatique
-2. [ ] `TransactionModel` : insertion depot/retrait/transfert, historique par client
+1. [x] `ClientModel` : recherche par telephone, creation automatique
+2. [x] `TransactionModel` : insertion depot/retrait/transfert, historique par client
 
 ## Controllers
-1. [ ] `AuthController` : login automatique par numero (pas d'inscription)
-2. [ ] `CompteController` : afficher solde
-3. [ ] `TransactionController` : depot, retrait, transfert — utilise
-4. [ ] `BaremeFraisModel::getFraisApplicable()` 
+1. [x] `AuthController` : login automatique par numero (pas d'inscription)
+2. [x] `CompteController` : afficher solde
+3. [x] `TransactionController` : depot, retrait, transfert — utilise
+4. [x] `BaremeFraisModel::getFraisApplicable()` 
 ## Views
-1. [ ] ecran de connexion (saisie numero)
-2. [ ] Dashboard client (solde + boutons operations)
-3. [ ] Historique des transactions
+1. [x] ecran de connexion (saisie numero)
+2. [x] Dashboard client (solde + boutons operations)
+3. [x] Historique des transactions
