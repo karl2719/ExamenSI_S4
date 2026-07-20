@@ -14,59 +14,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transfert - Mobile Money</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
-    <h1>Faire un transfert</h1>
+    <div class="container mt-4">
 
-    <!-- Affichage du solde actuel -->
-    <p>Votre solde actuel : <strong><?= number_format($solde, 0, ',', ' ') ?> Ar</strong></p>
+        <h1 class="h3 mb-3">Faire un transfert</h1>
 
-    <!-- Messages flash d'erreur -->
-    <?php if (session()->getFlashdata('error')): ?>
-        <p style="color: red;">
-            <strong>Erreur :</strong> <?= session()->getFlashdata('error') ?>
-        </p>
-    <?php endif; ?>
+        <!-- Affichage du solde actuel -->
+        <p>Votre solde actuel : <strong class="text-primary"><?= number_format($solde, 0, ',', ' ') ?> Ar</strong></p>
 
-    <!-- Formulaire de transfert -->
-    <!-- Envoie en POST vers /transaction/transfert (TransactionController::transfert) -->
-    <form action="<?= base_url('transaction/transfert') ?>" method="post">
+        <!-- Messages flash d'erreur -->
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger">
+                <strong>Erreur :</strong> <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
 
-        <!-- Champ numero du destinataire -->
-        <label for="numero_destinataire">Numero du destinataire :</label><br>
-        <input
-            type="text"
-            name="numero_destinataire"
-            id="numero_destinataire"
-            placeholder="Ex: 0337654321"
-            maxlength="10"
-            required
-        ><br><br>
+        <!-- Formulaire de transfert -->
+        <!-- Envoie en POST vers /transaction/transfert (TransactionController::transfert) -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form action="<?= base_url('transaction/transfert') ?>" method="post">
 
-        <!-- Champ montant a transferer -->
-        <label for="montant">Montant (Ar) :</label><br>
-        <input
-            type="number"
-            name="montant"
-            id="montant"
-            min="1"
-            placeholder="Ex: 25000"
-            required
-        ><br><br>
+                    <!-- Champ numero du destinataire -->
+                    <div class="mb-3">
+                        <label for="numero_destinataire" class="form-label">Numero du destinataire :</label>
+                        <input
+                            type="text"
+                            name="numero_destinataire"
+                            id="numero_destinataire"
+                            class="form-control"
+                            placeholder="Ex: 0337654321"
+                            maxlength="10"
+                            required
+                        >
+                    </div>
 
-        <!-- Bouton de soumission -->
-        <button type="submit">Transferer</button>
+                    <!-- Champ montant a transferer -->
+                    <div class="mb-3">
+                        <label for="montant" class="form-label">Montant (Ar) :</label>
+                        <input
+                            type="number"
+                            name="montant"
+                            id="montant"
+                            class="form-control"
+                            min="1"
+                            placeholder="Ex: 25000"
+                            required
+                        >
+                    </div>
 
-    </form>
+                    <!-- Bouton de soumission -->
+                    <button type="submit" class="btn btn-primary">Transferer</button>
 
-    <!-- Information sur les frais -->
-    <p><em>Des frais seront appliques selon le bareme en vigueur.</em></p>
+                </form>
+            </div>
+        </div>
 
-    <hr>
+        <!-- Information sur les frais -->
+        <p class="text-muted mt-3"><em>Des frais seront appliques selon le bareme en vigueur.</em></p>
 
-    <!-- Retour au dashboard -->
-    <a href="<?= base_url('compte') ?>">Retour au dashboard</a>
+        <hr>
 
+        <!-- Retour au dashboard -->
+        <a href="<?= base_url('compte') ?>" class="btn btn-secondary">&larr; Retour au dashboard</a>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

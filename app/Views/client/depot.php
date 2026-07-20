@@ -11,45 +11,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Depot - Mobile Money</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
-    <h1>Faire un depot</h1>
+    <div class="container mt-4">
 
-    <!-- Messages flash d'erreur -->
-    <?php if (session()->getFlashdata('error')): ?>
-        <p style="color: red;">
-            <strong>Erreur :</strong> <?= session()->getFlashdata('error') ?>
-        </p>
-    <?php endif; ?>
+        <h1 class="h3 mb-4">Faire un depot</h1>
 
-    <!-- Formulaire de depot -->
-    <!-- Envoie en POST vers /transaction/depot (TransactionController::depot) -->
-    <form action="<?= base_url('transaction/depot') ?>" method="post">
+        <!-- Messages flash d'erreur -->
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger">
+                <strong>Erreur :</strong> <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
 
-        <!-- Champ montant a deposer -->
-        <label for="montant">Montant (Ar) :</label><br>
-        <input
-            type="number"
-            name="montant"
-            id="montant"
-            min="1"
-            placeholder="Ex: 50000"
-            required
-        ><br><br>
+        <!-- Formulaire de depot -->
+        <!-- Envoie en POST vers /transaction/depot (TransactionController::depot) -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form action="<?= base_url('transaction/depot') ?>" method="post">
 
-        <!-- Bouton de soumission -->
-        <button type="submit">Deposer</button>
+                    <!-- Champ montant a deposer -->
+                    <div class="mb-3">
+                        <label for="montant" class="form-label">Montant (Ar) :</label>
+                        <input
+                            type="number"
+                            name="montant"
+                            id="montant"
+                            class="form-control"
+                            min="1"
+                            placeholder="Ex: 50000"
+                            required
+                        >
+                    </div>
 
-    </form>
+                    <!-- Bouton de soumission -->
+                    <button type="submit" class="btn btn-success">Deposer</button>
 
-    <!-- Information : le depot est automatique et gratuit -->
-    <p><em>Le depot est automatique et sans frais.</em></p>
+                </form>
+            </div>
+        </div>
 
-    <hr>
+        <!-- Information : le depot est automatique et gratuit -->
+        <p class="text-muted mt-3"><em>Le depot est automatique et sans frais.</em></p>
 
-    <!-- Retour au dashboard -->
-    <a href="<?= base_url('compte') ?>">Retour au dashboard</a>
+        <hr>
 
+        <!-- Retour au dashboard -->
+        <a href="<?= base_url('compte') ?>" class="btn btn-secondary">&larr; Retour au dashboard</a>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
