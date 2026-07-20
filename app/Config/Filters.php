@@ -17,13 +17,10 @@ use App\Filters\AdminAuthFilter;
 class Filters extends BaseFilters
 {
     /**
-     * Configures aliases for Filter classes to
-     * make reading things nicer and simpler.
+     * Aliases des filtres
+     * - 'auth' : filtre d'authentification client (verifie la session)
      *
      * @var array<string, class-string|list<class-string>>
-     *
-     * [filter_name => classname]
-     * or [filter_name => [classname1, classname2, ...]]
      */
     public array $aliases = [
         'csrf'          => CSRF::class,
@@ -35,6 +32,8 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        // Filtre d'authentification custom pour les pages client
+        'auth'          => \App\Filters\AuthFilter::class,
         'adminAuth'     => AdminAuthFilter::class,
     ];
 

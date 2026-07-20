@@ -20,11 +20,11 @@ class Database extends Config
     public string $defaultGroup = 'default';
 
     /**
-     * The default database connection.
+     * Connexion par defaut — SQLite3 (embarque, requis par le sujet)
+     * Le fichier de base de donnees sera cree dans writable/database.db
      *
      * @var array<string, mixed>
      */
-   
 
        /**
         * Sample database connection for SQLite3.
