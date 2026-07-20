@@ -215,3 +215,37 @@ VALUES
     (3, 4, 3, 15000, 150, 15150, 'reussi'),
     (5, 6, 3, 100000, 1200, 101200, 'en_attente');
 
+-- =========================================================
+-- Version 2 : Modifications backoffice operateur
+-- =========================================================
+
+-- Ajout colonne id_operateur dans la table admin
+-- Permet de savoir a quel operateur appartient l'admin connecte
+ALTER TABLE admin ADD COLUMN id_operateur INTEGER REFERENCES operateurs(id_operateur);
+
+-- L'admin par defaut (id=1) est lie a Telma (id_operateur=1)
+UPDATE admin SET id_operateur = 1 WHERE id_admin = 1;
+
+-- ---------------------------------------------------------
+-- Table : commissions_inter_operateur
+-- Stocke le pourcentage de commission supplementaire
+-- pour les transferts vers un autre operateur
+-- ---------------------------------------------------------
+CREATE TABLE commissions_inter_operateur (
+    id_commission        INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_operateur_source  INTEGER NOT NULL,        -- l'operateur qui envoie
+    id_operateur_dest    INTEGER NOT NULL,        -- l'operateur qui recoit
+    pourcentage          DECIMAL(5,2) NOT NULL DEFAULT 0,  -- % de commission en plus
+    created_at           DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at           DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_operateur_source) REFERENCES operateurs(id_operateur)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_operateur_dest) REFERENCES operateurs(id_operateur)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    UNIQUE(id_operateur_source, id_operateur_dest)
+);
+
+-- Donnees de test : commissions inter-operateur
+INSERT INTO commissions_inter_operateur (id_operateur_source, id_operateur_dest, pourcentage) VALUES
+    (1, 2, 2.00),   -- Telma vers Orange : 2%
+    (1, 3, 3.00);   -- Telma vers Airtel : 3%
