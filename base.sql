@@ -41,7 +41,6 @@ CREATE INDEX idx_bareme_type_montant ON baremes_frais (id_type, montant_min, mon
 CREATE TABLE clients (
     id_client         INTEGER PRIMARY KEY AUTOINCREMENT,
     numero_telephone  TEXT    NOT NULL UNIQUE,
-    solde             DECIMAL(15,2) NOT NULL DEFAULT 0,
     id_operateur      INTEGER NOT NULL,
     date_creation     DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_operateur) REFERENCES operateurs(id_operateur)
