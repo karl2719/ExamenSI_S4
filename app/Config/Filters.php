@@ -12,6 +12,7 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
+use App\Filters\AdminAuthFilter;
 
 class Filters extends BaseFilters
 {
@@ -33,6 +34,7 @@ class Filters extends BaseFilters
         'performance'   => PerformanceMetrics::class,
         // Filtre d'authentification custom pour les pages client
         'auth'          => \App\Filters\AuthFilter::class,
+        'adminAuth'     => AdminAuthFilter::class,
     ];
 
     /**
@@ -105,5 +107,8 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    // Protege les routes admin/* (sauf login et logout geres dans le filtre)
+    public array $filters = [
+        'adminAuth' => ['before' => ['admin', 'admin/*']],
+    ];
 }

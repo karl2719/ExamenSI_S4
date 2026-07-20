@@ -37,6 +37,10 @@ abstract class BaseController extends Controller
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         // Ne pas modifier cette ligne — appel au parent obligatoire
+        // Charge les helpers url et form pour toutes les vues
+        $this->helpers = ['form', 'url'];
+
+        // Caution: Do not edit this line.
         parent::initController($request, $response, $logger);
 
         // Charger la session pour pouvoir gerer la connexion client

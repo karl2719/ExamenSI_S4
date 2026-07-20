@@ -33,7 +33,7 @@ CREATE TABLE prefixes (
 -- ---------------------------------------------------------
 CREATE TABLE types_operation (
     id_type         INTEGER PRIMARY KEY AUTOINCREMENT,
-    code            TEXT    NOT NULL UNIQUE,
+    code            TEXT    NOT NULL UNIQUE,   -- DEPOT, RETRAIT, TRANSFERT
     libelle         TEXT    NOT NULL,
     created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -123,3 +123,16 @@ INSERT INTO baremes_frais (id_type, montant_min, montant_max, frais) VALUES
     (2, 250001,   500000,   1500),
     (2, 500001,   1000000,  2500),
     (2, 1000001,  2000000,  3000);
+
+-- ---------------------------------------------------------
+-- Table : admin (backoffice)
+-- ---------------------------------------------------------
+CREATE TABLE admin (
+    id_admin        INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom_utilisateur TEXT    NOT NULL UNIQUE,
+    mot_de_passe    TEXT    NOT NULL,
+    created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Admin par defaut (login: admin / mdp: admin)
+INSERT INTO admin (nom_utilisateur, mot_de_passe) VALUES ('admin', 'admin');
