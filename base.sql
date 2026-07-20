@@ -101,13 +101,6 @@ INSERT INTO types_operation (code, libelle) VALUES
     ('RETRAIT', 'Retrait'),
     ('TRANSFERT', 'Transfert');
 
--- =========================================================
--- Exemple : operateur + prefixes (a adapter)
--- =========================================================
-INSERT INTO operateurs (nom, code) VALUES ('Telma', 'TLM');
-INSERT INTO prefixes (prefixe, id_operateur) VALUES
-    ('033', 1),
-    ('037', 1);
 
 -- =========================================================
 -- Exemple : bareme de frais pour le retrait (issu du tableau)
@@ -148,13 +141,17 @@ PRAGMA foreign_keys = ON;
 -- Operateurs supplementaires (Telma id=1 deja cree)
 -- =========================================================
 INSERT INTO operateurs (nom, code) VALUES
+    ('Telma', 'TLM'),
     ('Orange', 'ORG'),
     ('Airtel', 'ATL');
 -- id_operateur : Telma=1, Orange=2, Airtel=3
 
 INSERT INTO prefixes (prefixe, id_operateur) VALUES
+    ('034', 1),
+    ('038', 1),
     ('032', 2),   -- Orange
-    ('034', 3);   -- Airtel
+    ('037', 2),   -- Orange
+    ('033', 3);   -- Airtel
 -- Telma (033, 037) deja inseres dans le script principal
 
 -- =========================================================
