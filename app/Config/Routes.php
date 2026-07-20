@@ -62,6 +62,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/transaction/transfert', 'TransactionController::transfert');
     $routes->post('/transaction/transfert', 'TransactionController::transfert');
 
+    // --- Envoi multiple ---
+    // GET  : affiche le formulaire d'envoi multiple
+    // POST : traite l'envoi multiple (montant divise entre destinataires)
+    $routes->get('/transaction/envoi-multiple', 'TransactionController::envoiMultiple');
+    $routes->post('/transaction/envoi-multiple', 'TransactionController::envoiMultiple');
+
     // --- Historique ---
     // Affiche l'historique de toutes les transactions du client
     $routes->get('/transaction/historique', 'TransactionController::historique');
@@ -100,3 +106,13 @@ $routes->get('admin/baremes/delete/(:num)', 'AdminBaremeController::delete/$1');
 $routes->get('admin/stats/gains', 'AdminStatsController::gains');
 $routes->get('admin/stats/comptes', 'AdminStatsController::comptes');
 
+// ===== V2 : Commissions inter-operateur =====
+$routes->get('admin/commissions', 'AdminCommissionController::index');
+$routes->get('admin/commissions/create', 'AdminCommissionController::create');
+$routes->post('admin/commissions/store', 'AdminCommissionController::store');
+$routes->get('admin/commissions/edit/(:num)', 'AdminCommissionController::edit/$1');
+$routes->post('admin/commissions/update/(:num)', 'AdminCommissionController::update/$1');
+$routes->get('admin/commissions/delete/(:num)', 'AdminCommissionController::delete/$1');
+
+// V2 : Montants a envoyer par operateur
+$routes->get('admin/stats/montants-operateurs', 'AdminStatsController::montantsParOperateur');

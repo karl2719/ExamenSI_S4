@@ -157,6 +157,146 @@ class TransactionModel extends Model
     }
 
     /**
+     * Effectue un envoi multiple vers plusieurs destinataires
+     *
+     * Le montant total est divise equitablement entre tous les destinataires.
+     * Les frais de transfert sont calcules individuellement pour chaque destinataire.
+     * Optionnellement, les frais de retrait peuvent etre inclus (payes par l'emetteur).
+     *
+     * @param  int    $idEmetteur         L'ID du client qui envoie
+     * @param  array  $numeros            Tableau des numeros destinataires
+     * @param  float  $montantTotal       Le montant total a repartir
+     * @param  bool   $inclureFraisRetrait Si true, inclure les frais de retrait dans le total
+     * @return array  Resultat avec 'success' (bool), 'details' (par destinataire), 'message'
+     */
+    public function envoiMultiple(int $idEmetteur, array $numeros, float $montantTotal, bool $inclureFraisRetrait = false): array
+    {
+        $clientModel = new ClientModel();
+        $baremeFraisModel = new BaremeFraisModel();
+        $db = \Config\Database::connect();
+
+        // Nombre de destinataires
+        $nbDestinataires = count($numeros);
+
+        // Montant par destinataire (division equitable)
+        $montantParDest = floor($montantTotal / $nbDestinataires);
+
+        // Recuperer les types d'operation
+        $typeTransfert = $db->table('types_operation')
+                            ->where('code', 'TRANSFERT')
+                            ->get()
+                            ->getRowArray();
+        $typeRetrait = $db->table('types_operation')
+                          ->where('code', 'RETRAIT')
+                          ->get()
+                          ->getRowArray();
+
+        if (!$typeTransfert) {
+            return ['success' => false, 'message' => 'Type TRANSFERT introuvable', 'details' => []];
+        }
+
+        // Phase 1 : Validation et calcul des frais totaux
+        $destinations = [];
+        $totalDebite = 0;
+
+        foreach ($numeros as $numero) {
+            $numero = trim($numero);
+
+            // Verifier le prefixe
+            $prefixe = substr($numero, 0, 3);
+            $prefixeExiste = $db->table('prefixes')
+                                ->where('prefixe', $prefixe)
+                                ->get()
+                                ->getRowArray();
+
+            if (!$prefixeExiste) {
+                return [
+                    'success' => false,
+                    'message' => 'Le prefixe du numero ' . $numero . ' n\'est pas reconnu',
+                    'details' => [],
+                ];
+            }
+
+            // Chercher ou creer le destinataire
+            $destinataire = $clientModel->findByTelephone($numero);
+            if (!$destinataire) {
+                $idDest = $clientModel->creerAutomatique($numero);
+                if (!$idDest) {
+                    return [
+                        'success' => false,
+                        'message' => 'Erreur lors de la creation du compte pour ' . $numero,
+                        'details' => [],
+                    ];
+                }
+            } else {
+                $idDest = $destinataire['id_client'];
+            }
+
+            // Calculer les frais de transfert
+            $fraisTransfert = $baremeFraisModel->getFraisApplicable($typeTransfert['id_type'], $montantParDest);
+
+            // Calculer les frais de retrait si option cochee
+            $fraisRetrait = 0;
+            if ($inclureFraisRetrait && $typeRetrait) {
+                $fraisRetrait = $baremeFraisModel->getFraisApplicable($typeRetrait['id_type'], $montantParDest);
+            }
+
+            $fraisTotal = $fraisTransfert + $fraisRetrait;
+            $totalDebite += $montantParDest + $fraisTotal;
+
+            $destinations[] = [
+                'numero'          => $numero,
+                'id_destinataire' => $idDest,
+                'montant'         => $montantParDest,
+                'frais_transfert' => $fraisTransfert,
+                'frais_retrait'   => $fraisRetrait,
+                'frais_total'     => $fraisTotal,
+            ];
+        }
+
+        // Phase 2 : Verifier le solde global
+        $solde = $clientModel->getSolde($idEmetteur);
+        if ($solde < $totalDebite) {
+            return [
+                'success' => false,
+                'message' => 'Solde insuffisant. Votre solde : '
+                    . number_format($solde, 0, ',', ' ') . ' Ar. '
+                    . 'Total necessaire : '
+                    . number_format($totalDebite, 0, ',', ' ') . ' Ar',
+                'details' => [],
+            ];
+        }
+
+        // Phase 3 : Inserer toutes les transactions
+        $details = [];
+        foreach ($destinations as $dest) {
+            $this->insert([
+                'id_client_emetteur'     => $idEmetteur,
+                'id_client_destinataire' => $dest['id_destinataire'],
+                'id_type'                => $typeTransfert['id_type'],
+                'montant'                => $dest['montant'],
+                'frais'                  => $dest['frais_total'],
+                'montant_total'          => $dest['montant'] + $dest['frais_total'],
+                'statut'                 => 'reussi',
+            ]);
+
+            $details[] = [
+                'numero'  => $dest['numero'],
+                'montant' => $dest['montant'],
+                'frais'   => $dest['frais_total'],
+                'success' => true,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Envoi multiple effectue avec succes vers ' . $nbDestinataires . ' destinataires',
+            'details' => $details,
+            'total_debite' => $totalDebite,
+        ];
+    }
+
+    /**
      * Recupere l'historique complet des transactions d'un client
      *
      * Inclut les transactions ou le client est :

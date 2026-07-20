@@ -64,6 +64,9 @@
             <!-- Transfert : envoyer de l'argent a un autre numero -->
             <a href="<?= base_url('transaction/transfert') ?>" class="list-group-item list-group-item-action">Faire un transfert</a>
 
+            <!-- Envoi multiple : envoyer a plusieurs numeros (montant divise) -->
+            <a href="<?= base_url('transaction/envoi-multiple') ?>" class="list-group-item list-group-item-action">Envoi multiple</a>
+
             <!-- Historique : voir toutes les transactions passees -->
             <a href="<?= base_url('transaction/historique') ?>" class="list-group-item list-group-item-action">Voir l'historique</a>
         </div>
