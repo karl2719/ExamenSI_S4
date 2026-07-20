@@ -62,6 +62,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/transaction/transfert', 'TransactionController::transfert');
     $routes->post('/transaction/transfert', 'TransactionController::transfert');
 
+    // --- Envoi multiple ---
+    // GET  : affiche le formulaire d'envoi multiple
+    // POST : traite l'envoi multiple (montant divise entre destinataires)
+    $routes->get('/transaction/envoi-multiple', 'TransactionController::envoiMultiple');
+    $routes->post('/transaction/envoi-multiple', 'TransactionController::envoiMultiple');
+
     // --- Historique ---
     // Affiche l'historique de toutes les transactions du client
     $routes->get('/transaction/historique', 'TransactionController::historique');

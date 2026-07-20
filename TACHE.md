@@ -19,13 +19,19 @@
 ## Models
 1. [x] `ClientModel` : recherche par telephone, creation automatique
 2. [x] `TransactionModel` : insertion depot/retrait/transfert, historique par client
+3. [x] `TransactionModel::envoiMultiple()` : gestion d'un envoi vers plusieurs numéros avec division du montant
 
 ## Controllers
 1. [x] `AuthController` : login automatique par numero (pas d'inscription)
 2. [x] `CompteController` : afficher solde
 3. [x] `TransactionController` : depot, retrait, transfert — utilise
 4. [x] `BaremeFraisModel::getFraisApplicable()` 
+5. [x] `TransactionController::envoyerAvecFraisInclus()` : option "inclure les frais de retrait" lors de l'envoi
+6. [x] `TransactionController::envoiMultiple()` : envoi vers plusieurs numéros, montant divisé par numéro
+
 ## Views
 1. [x] ecran de connexion (saisie numero)
 2. [x] Dashboard client (solde + boutons operations)
-3. [x] Historique des transactions
+3. [x] Historique des transactions 
+4. [x] Formulaire d'envoi : case à cocher "inclure les frais de retrait"
+5. [x] Formulaire d'envoi multiple : ajout dynamique de plusieurs numéros + montant réparti
