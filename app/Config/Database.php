@@ -32,8 +32,7 @@ class Database extends Config
         * @var array<string, mixed>
         */
        public array $default = [
-           'database'    => APPPATH . 'Database
-           /base.db',
+           'database'    => APPPATH . 'Database/base.db',
            'DBDriver'    => 'SQLite3',
            'DBPrefix'    => '',
            'DBDebug'     => true,

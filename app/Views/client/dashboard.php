@@ -14,49 +14,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Mobile Money</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
-    <!-- En-tete avec le numero du client -->
-    <h1>Bienvenue, <?= esc($client['numero_telephone']) ?></h1>
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container">
+            <span class="navbar-brand">Mobile Money</span>
+            <a href="<?= base_url('logout') ?>" class="btn btn-outline-light btn-sm">Se deconnecter</a>
+        </div>
+    </nav>
 
-    <!-- Messages flash de succes (apres une operation reussie) -->
-    <?php if (session()->getFlashdata('success')): ?>
-        <p style="color: green;">
-            <strong>Succes :</strong> <?= session()->getFlashdata('success') ?>
-        </p>
-    <?php endif; ?>
+    <div class="container">
 
-    <!-- Messages flash d'erreur -->
-    <?php if (session()->getFlashdata('error')): ?>
-        <p style="color: red;">
-            <strong>Erreur :</strong> <?= session()->getFlashdata('error') ?>
-        </p>
-    <?php endif; ?>
+        <!-- En-tete avec le numero du client -->
+        <h1 class="h3">Bienvenue, <?= esc($client['numero_telephone']) ?></h1>
 
-    <!-- Affichage du solde actuel du client -->
-    <h2>Votre solde : <?= number_format($solde, 0, ',', ' ') ?> Ar</h2>
+        <!-- Messages flash de succes (apres une operation reussie) -->
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert-success">
+                <strong>Succes :</strong> <?= session()->getFlashdata('success') ?>
+            </div>
+        <?php endif; ?>
 
-    <!-- Boutons des operations disponibles -->
-    <h3>Operations</h3>
-    <ul>
-        <!-- Depot : ajouter de l'argent sur le compte (automatique, sans frais) -->
-        <li><a href="<?= base_url('transaction/depot') ?>">Faire un depot</a></li>
+        <!-- Messages flash d'erreur -->
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger">
+                <strong>Erreur :</strong> <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
 
-        <!-- Retrait : retirer de l'argent (automatique, avec frais selon bareme) -->
-        <li><a href="<?= base_url('transaction/retrait') ?>">Faire un retrait</a></li>
+        <!-- Affichage du solde actuel du client -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h2 class="card-title h4">Votre solde</h2>
+                <p class="display-6 fw-bold text-primary"><?= number_format($solde, 0, ',', ' ') ?> Ar</p>
+            </div>
+        </div>
 
-        <!-- Transfert : envoyer de l'argent a un autre numero -->
-        <li><a href="<?= base_url('transaction/transfert') ?>">Faire un transfert</a></li>
+        <!-- Boutons des operations disponibles -->
+        <h3 class="h5 mb-3">Operations</h3>
+        <div class="list-group mb-4">
+            <!-- Depot : ajouter de l'argent sur le compte (automatique, sans frais) -->
+            <a href="<?= base_url('transaction/depot') ?>" class="list-group-item list-group-item-action">Faire un depot</a>
 
-        <!-- Historique : voir toutes les transactions passees -->
-        <li><a href="<?= base_url('transaction/historique') ?>">Voir l'historique</a></li>
-    </ul>
+            <!-- Retrait : retirer de l'argent (automatique, avec frais selon bareme) -->
+            <a href="<?= base_url('transaction/retrait') ?>" class="list-group-item list-group-item-action">Faire un retrait</a>
 
-    <hr>
+            <!-- Transfert : envoyer de l'argent a un autre numero -->
+            <a href="<?= base_url('transaction/transfert') ?>" class="list-group-item list-group-item-action">Faire un transfert</a>
 
-    <!-- Lien de deconnexion -->
-    <a href="<?= base_url('logout') ?>">Se deconnecter</a>
+            <!-- Historique : voir toutes les transactions passees -->
+            <a href="<?= base_url('transaction/historique') ?>" class="list-group-item list-group-item-action">Voir l'historique</a>
+        </div>
 
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

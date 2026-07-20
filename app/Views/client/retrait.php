@@ -13,48 +13,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retrait - Mobile Money</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
-    <h1>Faire un retrait</h1>
+    <div class="container mt-4">
 
-    <!-- Affichage du solde actuel pour que le client sache combien il peut retirer -->
-    <p>Votre solde actuel : <strong><?= number_format($solde, 0, ',', ' ') ?> Ar</strong></p>
+        <h1 class="h3 mb-3">Faire un retrait</h1>
 
-    <!-- Messages flash d'erreur (solde insuffisant, etc.) -->
-    <?php if (session()->getFlashdata('error')): ?>
-        <p style="color: red;">
-            <strong>Erreur :</strong> <?= session()->getFlashdata('error') ?>
-        </p>
-    <?php endif; ?>
+        <!-- Affichage du solde actuel pour que le client sache combien il peut retirer -->
+        <p>Votre solde actuel : <strong class="text-primary"><?= number_format($solde, 0, ',', ' ') ?> Ar</strong></p>
 
-    <!-- Formulaire de retrait -->
-    <!-- Envoie en POST vers /transaction/retrait (TransactionController::retrait) -->
-    <form action="<?= base_url('transaction/retrait') ?>" method="post">
+        <!-- Messages flash d'erreur (solde insuffisant, etc.) -->
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger">
+                <strong>Erreur :</strong> <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
 
-        <!-- Champ montant a retirer -->
-        <label for="montant">Montant (Ar) :</label><br>
-        <input
-            type="number"
-            name="montant"
-            id="montant"
-            min="1"
-            placeholder="Ex: 10000"
-            required
-        ><br><br>
+        <!-- Formulaire de retrait -->
+        <!-- Envoie en POST vers /transaction/retrait (TransactionController::retrait) -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form action="<?= base_url('transaction/retrait') ?>" method="post">
 
-        <!-- Bouton de soumission -->
-        <button type="submit">Retirer</button>
+                    <!-- Champ montant a retirer -->
+                    <div class="mb-3">
+                        <label for="montant" class="form-label">Montant (Ar) :</label>
+                        <input
+                            type="number"
+                            name="montant"
+                            id="montant"
+                            class="form-control"
+                            min="1"
+                            placeholder="Ex: 10000"
+                            required
+                        >
+                    </div>
 
-    </form>
+                    <!-- Bouton de soumission -->
+                    <button type="submit" class="btn btn-warning">Retirer</button>
 
-    <!-- Information sur les frais -->
-    <p><em>Des frais seront appliques selon le bareme en vigueur.</em></p>
+                </form>
+            </div>
+        </div>
 
-    <hr>
+        <!-- Information sur les frais -->
+        <p class="text-muted mt-3"><em>Des frais seront appliques selon le bareme en vigueur.</em></p>
 
-    <!-- Retour au dashboard -->
-    <a href="<?= base_url('compte') ?>">Retour au dashboard</a>
+        <hr>
 
+        <!-- Retour au dashboard -->
+        <a href="<?= base_url('compte') ?>" class="btn btn-secondary">&larr; Retour au dashboard</a>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
