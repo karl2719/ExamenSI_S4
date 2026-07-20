@@ -32,6 +32,23 @@
 ## Views
 1. [x] ecran de connexion (saisie numero)
 2. [x] Dashboard client (solde + boutons operations)
-3. [x] Historique des transactions 
+3. [x] Historique des transactions
 4. [x] Formulaire d'envoi : case à cocher "inclure les frais de retrait"
 5. [x] Formulaire d'envoi multiple : ajout dynamique de plusieurs numéros + montant réparti
+
+# VERSION 2 (Developpement Back-office Operateur) :
+## Base de donnees
+1. [x] Table `admin` : Ajout de la colonne `id_operateur` [4061]
+2. [x] Nouvelle table `commissions_inter_operateur` [4061]
+## Models
+1. [x] `CommissionModel` : Gestion des commissions inter-operateurs [4061]
+2. [x] `AdminModel` : Mise a jour pour inclure `id_operateur` [4061]
+## Controllers
+1. [x] `AdminAuthController` : Gestion de l'operateur en session [4061]
+2. [x] `AdminCommissionController` : CRUD complet pour les commissions [4061]
+3. [x] `AdminStatsController` : Separation gains (intra/inter) et calcul montants a reverser [4061]
+## Views
+1. [x] `commissions/index.php` & `form.php` : Interface de gestion des commissions [4061]
+2. [x] `stats/gains.php` : Affichage des gains separes [4061]
+3. [x] `stats/montants_operateurs.php` : Tableau recapitulatif des montants a reverser [4061]
+4. [x] `dashboard.php` : Ajout des liens vers les fonctionnalites V2 [4061]
