@@ -2,18 +2,18 @@
 
 # BACK-OFFICE : 
 ## Models
- 1. [ ] `OperateurModel` : CRUD operateurs [ETU4061]
- 2. [ ] `PrefixeModel` : CRUD prefixes par operateur [ETU4061]
- 3. [ ] `TypeOperationModel` : CRUD types d'operation [ETU4061]
- 4. [ ] `BaremeFraisModel` : CRUD barèmes de frais + methode [ETU4061]
+ 1. [x] `OperateurModel` : CRUD operateurs [ETU4061]
+ 2. [x] `PrefixeModel` : CRUD prefixes par operateur [ETU4061]
+ 3. [x] `TypeOperationModel` : CRUD types d'operation [ETU4061]
+ 4. [x] `BaremeFraisModel` : CRUD barèmes de frais + methode [ETU4061]
 ## Controllers
-1. [ ] `AdminOperateurController` : gestion operateurs/prefixes [ETU4061]
-2. [ ] `AdminBaremeController` : gestion des tranches de frais (modifiable) [ETU4061]
-3. [ ] `AdminStatsController` : situation gain (agregation frais), situation comptes clients [ETU4061]
+1. [x] `AdminOperateurController` : gestion operateurs/prefixes [ETU4061]
+2. [x] `AdminBaremeController` : gestion des tranches de frais (modifiable) [ETU4061]
+3. [x] `AdminStatsController` : situation gain (agregation frais), situation comptes clients [ETU4061]
 ## Views
-1. [ ] Formulaires admin (prefixes, types d'operation, barèmes) [ETU4061]
-2. [ ] Tableau de bord gains (par type, par periode) [ETU4061]
-3. [ ] Liste des comptes clients avec soldes [ETU4061]
+1. [x] Formulaires admin (prefixes, types d'operation, barèmes) [ETU4061]
+2. [x] Tableau de bord gains (par type, par periode) [ETU4061]
+3. [x] Liste des comptes clients avec soldes [ETU4061]
 
 # FRONT-OFFICE :
 ## Models
