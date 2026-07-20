@@ -12,17 +12,15 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
+use App\Filters\AdminAuthFilter;
 
 class Filters extends BaseFilters
 {
     /**
-     * Configures aliases for Filter classes to
-     * make reading things nicer and simpler.
+     * Aliases des filtres
+     * - 'auth' : filtre d'authentification client (verifie la session)
      *
      * @var array<string, class-string|list<class-string>>
-     *
-     * [filter_name => classname]
-     * or [filter_name => [classname1, classname2, ...]]
      */
     public array $aliases = [
         'csrf'          => CSRF::class,
@@ -34,6 +32,9 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        // Filtre d'authentification custom pour les pages client
+        'auth'          => \App\Filters\AuthFilter::class,
+        'adminAuth'     => AdminAuthFilter::class,
     ];
 
     /**
@@ -106,5 +107,8 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    // Protege les routes admin/* (sauf login et logout geres dans le filtre)
+    public array $filters = [
+        'adminAuth' => ['before' => ['admin', 'admin/*']],
+    ];
 }
