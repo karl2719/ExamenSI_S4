@@ -66,6 +66,23 @@
                         >
                     </div>
 
+                    <!-- Option : inclure les frais de retrait -->
+                    <div class="form-check mb-3">
+                        <input
+                            type="checkbox"
+                            name="inclure_frais_retrait"
+                            id="inclure_frais_retrait"
+                            class="form-check-input"
+                            value="1"
+                        >
+                        <label for="inclure_frais_retrait" class="form-check-label">
+                            Inclure les frais de retrait
+                        </label>
+                        <div class="form-text text-muted">
+                            <small>Si coche, vous payez aussi les frais de retrait pour le destinataire.</small>
+                        </div>
+                    </div>
+
                     <!-- Bouton de soumission -->
                     <button type="submit" class="btn btn-primary">Transferer</button>
 

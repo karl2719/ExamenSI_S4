@@ -224,29 +224,49 @@ class TransactionController extends BaseController
                        ->get()
                        ->getRowArray();
 
-            // Calculer les frais applicables avec le bareme
+            // Calculer les frais de transfert applicables avec le bareme
             $baremeFraisModel = new BaremeFraisModel();
-            $frais = $baremeFraisModel->getFraisApplicable($type['id_type'], $montant);
+            $fraisTransfert = $baremeFraisModel->getFraisApplicable($type['id_type'], $montant);
 
-            // Verifier le solde de l'emetteur (montant + frais)
+            // Option : inclure les frais de retrait (payes par l'emetteur)
+            $inclureFraisRetrait = $this->request->getPost('inclure_frais_retrait');
+            $fraisRetrait = 0;
+            if ($inclureFraisRetrait) {
+                $typeRetrait = $db->table('types_operation')
+                                  ->where('code', 'RETRAIT')
+                                  ->get()
+                                  ->getRowArray();
+                if ($typeRetrait) {
+                    $fraisRetrait = $baremeFraisModel->getFraisApplicable($typeRetrait['id_type'], $montant);
+                }
+            }
+
+            // Total des frais (transfert + retrait si option cochee)
+            $fraisTotal = $fraisTransfert + $fraisRetrait;
+
+            // Verifier le solde de l'emetteur (montant + frais total)
             $solde = $clientModel->getSolde($idClient);
-            if ($solde < ($montant + $frais)) {
+            if ($solde < ($montant + $fraisTotal)) {
                 return redirect()->back()
                                  ->with('error', 'Solde insuffisant. Votre solde : '
                                     . number_format($solde, 0, ',', ' ') . ' Ar. '
                                     . 'Montant + frais : '
-                                    . number_format($montant + $frais, 0, ',', ' ') . ' Ar');
+                                    . number_format($montant + $fraisTotal, 0, ',', ' ') . ' Ar');
             }
 
             // Effectuer le transfert
             $transactionModel = new TransactionModel();
-            $result = $transactionModel->insererTransfert($idClient, $idDestinataire, $montant, $frais);
+            $result = $transactionModel->insererTransfert($idClient, $idDestinataire, $montant, $fraisTotal);
 
             if ($result) {
+                $msgFrais = 'frais transfert : ' . number_format($fraisTransfert, 0, ',', ' ') . ' Ar';
+                if ($fraisRetrait > 0) {
+                    $msgFrais .= ' + frais retrait inclus : ' . number_format($fraisRetrait, 0, ',', ' ') . ' Ar';
+                }
                 return redirect()->to('/compte')
                                  ->with('success', 'Transfert de ' . number_format($montant, 0, ',', ' ')
                                     . ' Ar vers ' . $numeroDestinataire
-                                    . ' effectue (frais : ' . number_format($frais, 0, ',', ' ') . ' Ar)');
+                                    . ' effectue (' . $msgFrais . ')');
             } else {
                 return redirect()->back()
                                  ->with('error', 'Erreur lors du transfert');
@@ -257,6 +277,98 @@ class TransactionController extends BaseController
         $solde = $clientModel->getSolde($idClient);
 
         return view('client/transfert', [
+            'solde' => $solde,
+        ]);
+    }
+
+    // -------------------------------------------------------
+    // ENVOI MULTIPLE
+    // -------------------------------------------------------
+
+    /**
+     * Gere l'envoi multiple vers plusieurs destinataires
+     *
+     * GET  : affiche le formulaire d'envoi multiple
+     * POST : traite l'envoi
+     *
+     * Le montant total est divise equitablement entre tous les destinataires.
+     * Les frais de transfert sont calcules individuellement par destinataire.
+     */
+    public function envoiMultiple()
+    {
+        $clientModel = new ClientModel();
+        $idClient = session()->get('id_client');
+
+        // --- Traitement du formulaire (POST) ---
+        if ($this->request->getMethod() === 'POST') {
+            $montant = (float) $this->request->getPost('montant');
+            $numeros = $this->request->getPost('numeros');
+            $inclureFraisRetrait = (bool) $this->request->getPost('inclure_frais_retrait');
+
+            // Validation du montant
+            if ($montant <= 0) {
+                return redirect()->back()
+                                 ->with('error', 'Le montant doit etre superieur a 0');
+            }
+
+            // Filtrer les numeros vides
+            if (!is_array($numeros)) {
+                $numeros = [];
+            }
+            $numeros = array_filter(array_map('trim', $numeros), function ($n) {
+                return !empty($n);
+            });
+            $numeros = array_values($numeros); // Re-indexer
+
+            // Validation : au moins 2 numeros
+            if (count($numeros) < 2) {
+                return redirect()->back()
+                                 ->with('error', 'Vous devez saisir au moins 2 numeros destinataires');
+            }
+
+            // Validation : chaque numero doit faire au moins 10 chiffres
+            foreach ($numeros as $numero) {
+                if (strlen($numero) < 10) {
+                    return redirect()->back()
+                                     ->with('error', 'Le numero ' . $numero . ' est invalide (minimum 10 chiffres)');
+                }
+            }
+
+            // Verifier qu'aucun numero n'est celui de l'emetteur
+            $emetteur = $clientModel->find($idClient);
+            foreach ($numeros as $numero) {
+                if ($emetteur['numero_telephone'] === $numero) {
+                    return redirect()->back()
+                                     ->with('error', 'Vous ne pouvez pas vous envoyer a vous-meme');
+                }
+            }
+
+            // Verifier les doublons
+            if (count($numeros) !== count(array_unique($numeros))) {
+                return redirect()->back()
+                                 ->with('error', 'Des numeros en double ont ete detectes');
+            }
+
+            // Effectuer l'envoi multiple via le model
+            $transactionModel = new TransactionModel();
+            $result = $transactionModel->envoiMultiple($idClient, $numeros, $montant, $inclureFraisRetrait);
+
+            if ($result['success']) {
+                $montantParDest = floor($montant / count($numeros));
+                return redirect()->to('/compte')
+                                 ->with('success', $result['message']
+                                    . ' (' . number_format($montantParDest, 0, ',', ' ') . ' Ar chacun, '
+                                    . 'total debite : ' . number_format($result['total_debite'], 0, ',', ' ') . ' Ar)');
+            } else {
+                return redirect()->back()
+                                 ->with('error', $result['message']);
+            }
+        }
+
+        // --- Affichage du formulaire (GET) ---
+        $solde = $clientModel->getSolde($idClient);
+
+        return view('client/envoi_multiple', [
             'solde' => $solde,
         ]);
     }
