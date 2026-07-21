@@ -78,3 +78,136 @@ Objectif
   - nombre de rejets par type de limite
   - montants cumulés par période
 - Prévoir des alertes en cas de volume anormal de rejets.
+
+9) Codes a faire (fonctions et structures proposees)
+
+9.1 Migration SQL (nouvelles tables)
+--------------------------------------------------
+-- Limites definies par client
+CREATE TABLE limites_client (
+    id_limite_client INT AUTO_INCREMENT PRIMARY KEY,
+    id_client INT NOT NULL,
+    limite_journaliere DECIMAL(15,2) NULL,
+    limite_hebdomadaire DECIMAL(15,2) NULL,
+    actif TINYINT(1) DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Limites definies par operateur
+CREATE TABLE limites_operateur (
+    id_limite_operateur INT AUTO_INCREMENT PRIMARY KEY,
+    id_operateur INT NOT NULL,
+    limite_journaliere DECIMAL(15,2) NULL,
+    limite_hebdomadaire DECIMAL(15,2) NULL,
+    actif TINYINT(1) DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+9.2 Model a creer: LimiteTransactionModel.php
+--------------------------------------------------
+namespace App\Models;
+
+class LimiteTransactionModel extends Model
+{
+    // Retourne les limites du client (ou null si non defini)
+    public function getLimitesClient(int $idClient): ?array {}
+
+    // Retourne les limites de l'operateur du client (ou null si non defini)
+    public function getLimitesOperateurParClient(int $idClient): ?array {}
+
+    // Somme des transactions reussies du client sur la journee
+    public function getCumulJournalier(int $idClient, string $dateRef): float {}
+
+    // Somme des transactions reussies du client sur la semaine
+    public function getCumulHebdomadaire(int $idClient, string $dateRef): float {}
+
+    // Calcule la limite effective = plus restrictive entre client et operateur
+    public function calculerLimiteEffective(?float $limiteClient, ?float $limiteOperateur): ?float {}
+
+    // Verifie si la transaction peut passer, sinon retourne le motif de blocage
+    public function verifierPlafonds(int $idClient, float $montant, string $dateRef): array {}
+}
+
+9.3 Service metier conseille: LimiteTransactionService.php
+--------------------------------------------------
+namespace App\Services;
+
+class LimiteTransactionService
+{
+    // Point d'entree unique pour valider les plafonds avant transaction
+    public function controlerAvantTransaction(int $idClient, float $montant): array {}
+
+    // Ex: ['ok' => false, 'motif' => 'LIMITE_JOUR_DEPASSEE', 'details' => [...]]
+    private function formaterReponseRefus(string $motif, array $details = []): array {}
+}
+
+9.4 Integration dans TransactionController.php
+--------------------------------------------------
+// Dans depot(), retrait(), transfert(), envoiMultiple():
+// 1) Recuperer le montant a controler
+// 2) Appeler LimiteTransactionService::controlerAvantTransaction(...)
+// 3) Si refuse => redirect back avec message d'erreur
+// 4) Sinon poursuivre le flux existant
+
+Exemple logique:
+if ($this->request->getMethod() === 'POST') {
+    $montant = (float) $this->request->getPost('montant');
+    $check = $limiteService->controlerAvantTransaction($idClient, $montant);
+    if (!$check['ok']) {
+        return redirect()->back()->with('error', $check['message']);
+    }
+    // ... traitement transaction existant
+}
+
+9.5 Integration dans TransactionModel.php
+--------------------------------------------------
+// Option A (recommandee): verifier les limites dans le Controller/Service
+// avant d'appeler:
+// - insererDepot(...)
+// - insererRetrait(...)
+// - insererTransfert(...)
+// - envoiMultiple(...)
+
+// Option B (defense en profondeur): ajouter une verification interne
+// juste avant insert(), avec transaction DB.
+
+9.6 Fonctions utilitaires a ajouter
+--------------------------------------------------
+function debutJour(string $timezone = 'Indian/Antananarivo'): string {}
+function finJour(string $timezone = 'Indian/Antananarivo'): string {}
+function debutSemaineISO(string $timezone = 'Indian/Antananarivo'): string {}
+function finSemaineISO(string $timezone = 'Indian/Antananarivo'): string {}
+
+9.7 Requetes SQL de cumul (exemple)
+--------------------------------------------------
+-- Cumul journalier
+SELECT COALESCE(SUM(montant_total), 0) AS total
+FROM transactions
+WHERE id_client_emetteur = :idClient
+  AND statut = 'reussi'
+  AND date_transaction BETWEEN :debutJour AND :finJour;
+
+-- Cumul hebdomadaire
+SELECT COALESCE(SUM(montant_total), 0) AS total
+FROM transactions
+WHERE id_client_emetteur = :idClient
+  AND statut = 'reussi'
+  AND date_transaction BETWEEN :debutSemaine AND :finSemaine;
+
+9.8 Messages metier a retourner
+--------------------------------------------------
+- LIMITE_JOUR_DEPASSEE: "Plafond journalier depasse."
+- LIMITE_SEMAINE_DEPASSEE: "Plafond hebdomadaire depasse."
+- LIMITE_NON_CONFIGUREE: "Aucune limite definie, verification ignoree."
+
+9.9 Tests unitaires/fonctionnels a coder
+--------------------------------------------------
+- Test LimiteTransactionModel::calculerLimiteEffective()
+- Test verifierPlafonds() pour:
+  - depassement jour
+  - depassement semaine
+  - absence limite client
+  - absence limite operateur
+- Test integration TransactionController (POST) avec refus/acceptation.
