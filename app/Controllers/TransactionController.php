@@ -191,9 +191,15 @@ class TransactionController extends BaseController
                 return redirect()->back()
                                  ->with('error', 'Vous ne pouvez pas vous transferer a vous-meme');
             }
+            //RECUPERATION NUMERO EMETEUR et prefixe 
+            $numemeteur = $emetteur['numero_telephone'] ;
+                $prefixeEme = substr($numemeteur, 0, 3); 
+
 
             // Verifier le prefixe du destinataire
             $prefixe = substr($numeroDestinataire, 0, 3);
+
+            $prefixeDesti = substr($numeroDestinataire, 0, 3);
             $db = \Config\Database::connect();
             $prefixeExiste = $db->table('prefixes')
                                 ->where('prefixe', $prefixe)
@@ -241,6 +247,26 @@ class TransactionController extends BaseController
                 }
             }
 
+            // Verification operateur
+               $operateurEme = $db->table('prefixes')
+                                ->where('prefixe', $prefixeEme)
+                                ->get()
+                                ->getRowArray();
+
+                $operateurDesti = $db->table('prefixes')
+                                ->where('prefixe', $prefixeDesti)
+                                ->get()
+                                ->getRowArray();
+
+            if($prefixeDesti == $prefixeDesti || $operateurEme['id_operateur'] == $operateurDesti['id_operateur']){
+                $reduction = $db->table('reduction')
+                                ->where('id_operateur', $operateurEme['id_operateur'])
+                                ->get()
+                                ->getRowArray();
+                $fraisTransfert =  $fraisTransfert - $fraisTransfert * $reduction['pourcentage']/100;
+            }
+
+
             // Total des frais (transfert + retrait si option cochee)
             $fraisTotal = $fraisTransfert + $fraisRetrait;
 
@@ -275,7 +301,7 @@ class TransactionController extends BaseController
 
         // --- Affichage du formulaire (GET) ---
         $solde = $clientModel->getSolde($idClient);
-
+        $red = $clientModel->getSolde($idClient);
         return view('client/transfert', [
             'solde' => $solde,
         ]);
@@ -367,7 +393,6 @@ class TransactionController extends BaseController
 
         // --- Affichage du formulaire (GET) ---
         $solde = $clientModel->getSolde($idClient);
-
         return view('client/envoi_multiple', [
             'solde' => $solde,
         ]);

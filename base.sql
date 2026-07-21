@@ -249,3 +249,16 @@ CREATE TABLE commissions_inter_operateur (
 INSERT INTO commissions_inter_operateur (id_operateur_source, id_operateur_dest, pourcentage) VALUES
     (1, 2, 2.00),   -- Telma vers Orange : 2%
     (1, 3, 3.00);   -- Telma vers Airtel : 3%
+
+CREATE TABLE reduction (
+    id_reduction       INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_operateur INTEGERINTEGER NOT NULL, 
+    pourcentage          DECIMAL(5,2) NOT NULL DEFAULT 0,
+    FOREIGN KEY (id_operateuR) REFERENCES operateurs(id_operateur)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO reduction (id_operateur , pourcentage) VALUES 
+    (1,50.00),
+    (2,50.00),
+    (3,50.00);
