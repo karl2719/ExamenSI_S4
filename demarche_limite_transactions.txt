@@ -1,0 +1,80 @@
+DEMARCHE - LIMITE MAXIMALE DE TRANSACTION (JOURNALIERE / HEBDOMADAIRE)
+
+Objectif
+- Mettre en place un plafond de montant cumulé de transactions par client:
+  - par jour
+  - par semaine
+- Le plafond peut être défini par:
+  - le client
+  - l’opérateur
+
+1) Définir les règles métier
+- Identifier les types de transactions concernés (dépôt, retrait, transfert, envoi multiple, etc.).
+- Définir l’unité de temps:
+  - Journalière: de 00:00 à 23:59 (timezone du système).
+  - Hebdomadaire: semaine ISO (lundi -> dimanche) ou règle métier choisie.
+- Définir la priorité des limites:
+  - Limite finale appliquée = la plus restrictive entre limite client et limite opérateur.
+- Définir les comportements en cas d’absence de limite:
+  - Limite non renseignée = pas de contrainte à ce niveau.
+
+2) Modéliser les données
+- Ajouter une structure de stockage pour les limites client:
+  - id_client
+  - limite_journaliere_client
+  - limite_hebdomadaire_client
+  - date d’activation / statut
+- Ajouter une structure de stockage pour les limites opérateur:
+  - id_operateur
+  - limite_journaliere_operateur
+  - limite_hebdomadaire_operateur
+  - date d’activation / statut
+- Associer chaque client à son opérateur pour appliquer les règles combinées.
+
+3) Déterminer le montant cumulé à contrôler
+- Avant validation d’une transaction, calculer le cumul des montants du client:
+  - cumul du jour (transactions déjà validées dans la journée)
+  - cumul de la semaine (transactions déjà validées dans la semaine)
+- Inclure dans le calcul le montant de la transaction en cours.
+
+4) Appliquer la règle de contrôle
+- Calculer les plafonds effectifs:
+  - plafond_journalier_effectif = min(limite_journaliere_client, limite_journaliere_operateur) en ignorant les valeurs nulles.
+  - plafond_hebdomadaire_effectif = min(limite_hebdomadaire_client, limite_hebdomadaire_operateur) en ignorant les valeurs nulles.
+- Vérifier:
+  - si cumul_jour + montant_en_cours > plafond_journalier_effectif => refuser la transaction.
+  - si cumul_semaine + montant_en_cours > plafond_hebdomadaire_effectif => refuser la transaction.
+- Retourner un message explicite indiquant la limite dépassée.
+
+5) Gérer les cas particuliers
+- Envoi multiple:
+  - contrôler le montant global de l’opération avant découpage.
+- Annulation / rollback:
+  - ne pas compter les transactions annulées.
+- Fuseau horaire:
+  - utiliser une timezone unique et explicite pour les bornes jour/semaine.
+- Concurrence:
+  - sécuriser la validation (transaction base de données / verrou logique) pour éviter le dépassement sur requêtes simultanées.
+
+6) Prévoir l’administration des limites
+- Interface client:
+  - permettre au client de saisir/modifier ses propres limites (si autorisé).
+- Interface opérateur:
+  - permettre à l’opérateur de définir/modifier ses limites globales ou par segment.
+- Historiser les changements de limites (audit: qui, quand, ancienne valeur, nouvelle valeur).
+
+7) Tests à réaliser
+- Cas nominal: transaction en dessous des deux limites => acceptée.
+- Dépassement journalier uniquement => refus.
+- Dépassement hebdomadaire uniquement => refus.
+- Limite client plus stricte que limite opérateur => limite client appliquée.
+- Limite opérateur plus stricte que limite client => limite opérateur appliquée.
+- Absence de limite client ou opérateur => appliquer uniquement la limite disponible.
+- Tests de concurrence (deux transactions quasi simultanées).
+
+8) Suivi et monitoring
+- Journaliser les refus pour dépassement de plafond.
+- Créer des indicateurs:
+  - nombre de rejets par type de limite
+  - montants cumulés par période
+- Prévoir des alertes en cas de volume anormal de rejets.
