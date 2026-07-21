@@ -80,6 +80,9 @@ class TransactionModel extends Model
         return $this->getInsertID();
     }
 
+
+    
+    
     /**
      * Insere un retrait pour un client
      *

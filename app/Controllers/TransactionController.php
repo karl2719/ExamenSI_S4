@@ -179,6 +179,12 @@ class TransactionController extends BaseController
                                  ->with('error', 'Le montant doit etre superieur a 0');
             }
 
+            //depiter le pourcentage epargner par le client pour les transfert 
+    
+
+
+
+
             // Validation du numero destinataire
             if (empty($numeroDestinataire) || strlen($numeroDestinataire) < 10) {
                 return redirect()->back()
@@ -246,7 +252,9 @@ class TransactionController extends BaseController
                     $fraisRetrait = $baremeFraisModel->getFraisApplicable($typeRetrait['id_type'], $montant);
                 }
             }
-
+// depiter le montant envoyer de l epargne deu destinataire
+        
+    
             // Verification operateur
                $operateurEme = $db->table('prefixes')
                                 ->where('prefixe', $prefixeEme)

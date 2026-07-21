@@ -61,7 +61,9 @@ CREATE INDEX idx_bareme_type_montant ON baremes_frais (id_type, montant_min, mon
 CREATE TABLE clients (
     id_client         INTEGER PRIMARY KEY AUTOINCREMENT,
     numero_telephone  TEXT    NOT NULL UNIQUE,
+    
     id_operateur      INTEGER NOT NULL,
+    pourcentageEpargne DECIMAL,
     date_creation     DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_operateur) REFERENCES operateurs(id_operateur)
         ON DELETE RESTRICT ON UPDATE CASCADE
@@ -257,6 +259,8 @@ CREATE TABLE reduction (
     FOREIGN KEY (id_operateuR) REFERENCES operateurs(id_operateur)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
 
 INSERT INTO reduction (id_operateur , pourcentage) VALUES 
     (1,50.00),
